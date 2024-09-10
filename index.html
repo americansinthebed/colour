@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HexHue</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .game-container {
+            text-align: center;
+        }
+        #colorDisplay {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            border: 1px solid #000;
+        }
+        #guessInput {
+            width: 100px;
+            padding: 5px;
+            font-size: 16px;
+        }
+        #submitGuess {
+            padding: 5px 10px;
+            font-size: 16px;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .guess-history {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .guess-box {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #000;
+            margin: 0 2px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>HexHue</h1>
+        <div id="colorDisplay"></div>
+        <input type="text" id="guessInput" maxlength="6" placeholder="RRGGBB">
+        <button id="submitGuess">Guess</button>
+        <div id="feedback"></div>
+        <div id="guessHistory"></div>
+    </div>
+
+    <script>
+        let targetColor;
+        let attempts = 0;
+        const maxAttempts = 6;
+
+        function generateRandomColor() {
+            return Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+        }
+
+        function startNewGame() {
+            targetColor = generateRandomColor();
+            document.getElementById('colorDisplay').style.backgroundColor = `#${targetColor}`;
+            attempts = 0;
+            document.getElementById('guessHistory').innerHTML = '';
+            document.getElementById('feedback').textContent = '';
+        }
+
+        function checkGuess(guess) {
+            let feedback = '';
+            for (let i = 0; i < 6; i++) {
+                if (guess[i] === targetColor[i]) {
+                    feedback += '<span class="guess-box" style="background-color: green;"></span>';
+                } else if (targetColor.includes(guess[i])) {
+                    feedback += '<span class="guess-box" style="background-color: yellow;"></span>';
+                } else {
+                    feedback += '<span class="guess-box" style="background-color: grey;"></span>';
+                }
+            }
+            return feedback;
+        }
+
+        document.getElementById('submitGuess').addEventListener('click', function() {
+            const guess = document.getElementById('guessInput').value.toLowerCase();
+            if (guess.length !== 6 || !/^[0-9a-f]{6}$/.test(guess)) {
+                alert('Please enter a valid 6-digit hex code');
+                return;
+            }
+
+            attempts++;
+            const feedback = checkGuess(guess);
+            document.getElementById('guessHistory').innerHTML += `<div>${feedback}</div>`;
+
+            if (guess === targetColor) {
+                document.getElementById('feedback').textContent = `Congratulations! You guessed it in ${attempts} attempts.`;
+            } else if (attempts >= maxAttempts) {
+                document.getElementById('feedback').textContent = `Game over. The correct color was #${targetColor}.`;
+            } else {
+                document.getElementById('feedback').textContent = `Attempt ${attempts}/${maxAttempts}`;
+            }
+
+            document.getElementById('guessInput').value = '';
+        });
+
+        startNewGame();
+    </script>
+</body>
+</html>
